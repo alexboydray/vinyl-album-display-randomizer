@@ -16,6 +16,7 @@ interface AppState {
   darkMode: boolean;
   undoStack: Rectangle[][];
   redoStack: Rectangle[][];
+  artworkOverrides: Record<number, string>;
 
   setBackground: (dataUrl: string | null) => void;
   addRectangle: (rect: Rectangle) => void;
@@ -40,6 +41,8 @@ interface AppState {
   toggleDarkMode: () => void;
   undoRandom: () => void;
   redoRandom: () => void;
+  setArtworkOverride: (id: number, dataUrl: string) => void;
+  clearArtworkOverrides: () => void;
 }
 
 const defaultFilters: Filters = {
@@ -70,6 +73,7 @@ export const useAppStore = create<AppState>()(
       darkMode: false,
       undoStack: [],
       redoStack: [],
+      artworkOverrides: {},
 
       setBackground: (dataUrl) => set({ backgroundDataUrl: dataUrl }),
       addRectangle: (rect) =>
@@ -99,14 +103,25 @@ export const useAppStore = create<AppState>()(
         })),
 
       setCollection: (releases) =>
-        set((s) => ({
-          collection: releases.map((r) => ({
+        set((s) => {
+          const newCollection = releases.map((r) => ({
             ...r,
             originalYear: s.yearCache[r.id] !== undefined ? s.yearCache[r.id] : undefined,
-          })),
-          masterFetchStatus:
-            s.masterFetchStatus === "done" ? "done" : "idle",
-        })),
+            ...(s.artworkOverrides[r.id]
+              ? { coverImage: s.artworkOverrides[r.id], thumb: s.artworkOverrides[r.id] }
+              : {}),
+          }));
+          const coverMap = new Map(newCollection.map((r) => [r.id, r.coverImage]));
+          return {
+            collection: newCollection,
+            masterFetchStatus: s.masterFetchStatus === "done" ? "done" : "idle",
+            rectangles: s.rectangles.map((r) =>
+              r.releaseId != null && coverMap.has(r.releaseId)
+                ? { ...r, coverImage: coverMap.get(r.releaseId) }
+                : r
+            ),
+          };
+        }),
 
       mergeReleaseData: (id, patch) =>
         set((s) => ({
@@ -164,6 +179,29 @@ export const useAppStore = create<AppState>()(
       setMasterFetchStatus: (status) => set({ masterFetchStatus: status }),
       setMasterFetchProgress: (progress) => set({ masterFetchProgress: progress }),
       toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
+      clearArtworkOverrides: () => set({ artworkOverrides: {} }),
+      setArtworkOverride: (id, dataUrl) =>
+        set((s) => {
+          const overrides = { ...s.artworkOverrides };
+          if (dataUrl) {
+            overrides[id] = dataUrl;
+          } else {
+            delete overrides[id];
+          }
+          return {
+            artworkOverrides: overrides,
+            collection: dataUrl
+              ? s.collection.map((r) =>
+                  r.id === id ? { ...r, coverImage: dataUrl, thumb: dataUrl } : r
+                )
+              : s.collection,
+            rectangles: dataUrl
+              ? s.rectangles.map((r) =>
+                  r.releaseId === id ? { ...r, coverImage: dataUrl } : r
+                )
+              : s.rectangles,
+          };
+        }),
       cacheYear: (id, year) =>
         set((s) => ({
           yearCache: { ...s.yearCache, [id]: year },
@@ -181,6 +219,7 @@ export const useAppStore = create<AppState>()(
         yearCache: s.yearCache,
         masterFetchStatus: s.masterFetchStatus === "fetching" ? "idle" : s.masterFetchStatus,
         darkMode: s.darkMode,
+        artworkOverrides: s.artworkOverrides,
       }),
     }
   )
