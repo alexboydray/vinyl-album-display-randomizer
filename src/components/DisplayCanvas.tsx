@@ -130,7 +130,7 @@ export default function DisplayCanvas({ stageRef }: DisplayCanvasProps) {
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
     if (!stage) return;
-    if (e.target !== stage && e.target.getAttr("name") !== "background") {
+    if (e.target !== stage && (e.target as Konva.Node).getAttr("name") !== "background") {
       return;
     }
     const pointer = stage.getPointerPosition();
