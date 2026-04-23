@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "iron-session": "^8.0.4",
+    "konva": "^10.2.5",
     "next": "16.2.4",
+    "node-vibrant": "^4.0.4",
+    "oauth-1.0a": "^2.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-konva": "^19.2.3",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
