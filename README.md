@@ -56,20 +56,6 @@ Visit http://localhost:3000.
 
 Layouts (background + slots + locks) persist in `localStorage`; reloading the page restores your setup.
 
-## Verification checklist
-
-- [ ] Page loads at http://localhost:3000 with the three-pane layout (header, canvas, right sidebar, bottom toolbar).
-- [ ] Upload a background image → it appears behind the canvas.
-- [ ] Drag on the canvas → a red dashed rectangle is drawn.
-- [ ] Select a rectangle → it gets handles; drag to move, corners to resize.
-- [ ] Click the L/U badge → the rectangle becomes locked (badge turns dark).
-- [ ] Reload the page → background + rectangles + lock state are restored.
-- [ ] Click **Save Display as .jpg** → a JPG downloads (do this after a Randomize to verify covers export too).
-- [ ] Click **Sign in with Discogs** → redirected to Discogs → approve → back on `/` with `@username` in header.
-- [ ] Click **Load Collection** → sidebar populates.
-- [ ] Pick a Genre → list shrinks.
-- [ ] Click **Randomize!** with a locked rectangle → unlocked rectangles update, the locked one doesn't.
-
 ## Project structure
 
 ```
