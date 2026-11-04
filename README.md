@@ -2,6 +2,8 @@
 
 Upload a photo of your shelf, draw album slots on it, sign in with Discogs, and fill the slots with randomly picked covers from your collection. Lock individual slots so they stay put when you re-randomize.
 
+![The Vinyl Album Display Randomizer: six records on wall shelves, with filters and the collection grid on the right](docs/screenshot.jpg)
+
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript
