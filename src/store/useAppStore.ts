@@ -17,6 +17,7 @@ interface AppState {
   undoStack: Rectangle[][];
   redoStack: Rectangle[][];
   artworkOverrides: Record<number, string>;
+  copiedRectangle: Rectangle | null;
 
   setBackground: (dataUrl: string | null) => void;
   addRectangle: (rect: Rectangle) => void;
@@ -43,6 +44,8 @@ interface AppState {
   redoRandom: () => void;
   setArtworkOverride: (id: number, dataUrl: string) => void;
   clearArtworkOverrides: () => void;
+  copyRectangle: () => void;
+  pasteRectangle: () => void;
 }
 
 const defaultFilters: Filters = {
@@ -74,6 +77,7 @@ export const useAppStore = create<AppState>()(
       undoStack: [],
       redoStack: [],
       artworkOverrides: {},
+      copiedRectangle: null,
 
       setBackground: (dataUrl) => set({ backgroundDataUrl: dataUrl }),
       addRectangle: (rect) =>
@@ -180,6 +184,29 @@ export const useAppStore = create<AppState>()(
       setMasterFetchProgress: (progress) => set({ masterFetchProgress: progress }),
       toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
       clearArtworkOverrides: () => set({ artworkOverrides: {} }),
+
+      copyRectangle: () => {
+        const { selectedRectangleId, rectangles } = get();
+        if (!selectedRectangleId) return;
+        const rect = rectangles.find((r) => r.id === selectedRectangleId);
+        if (rect) set({ copiedRectangle: rect });
+      },
+
+      pasteRectangle: () => {
+        const { copiedRectangle } = get();
+        if (!copiedRectangle) return;
+        const newRect = {
+          ...copiedRectangle,
+          id: crypto.randomUUID(),
+          x: copiedRectangle.x + 20,
+          y: copiedRectangle.y + 20,
+          locked: false,
+        };
+        set((s) => ({
+          rectangles: [...s.rectangles, newRect],
+          selectedRectangleId: newRect.id,
+        }));
+      },
       setArtworkOverride: (id, dataUrl) =>
         set((s) => {
           const overrides = { ...s.artworkOverrides };

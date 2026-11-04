@@ -23,6 +23,8 @@ const DisplayCanvas = dynamic(() => import("@/components/DisplayCanvas"), {
 export default function AppShell() {
   const stageRef = useRef<Konva.Stage | null>(null);
   const darkMode = useAppStore((s) => s.darkMode);
+  const copyRectangle = useAppStore((s) => s.copyRectangle);
+  const pasteRectangle = useAppStore((s) => s.pasteRectangle);
 
   useEffect(() => {
     if (darkMode) {
@@ -31,6 +33,17 @@ export default function AppShell() {
       document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+      if (e.key === "c") { e.preventDefault(); copyRectangle(); }
+      if (e.key === "v") { e.preventDefault(); pasteRectangle(); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [copyRectangle, pasteRectangle]);
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
